@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Landing page for Library</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/public/css_deps/w3.css">
+  <link rel="stylesheet" href="/public/css_deps/w3-theme-black.css">
+  <link rel="stylesheet" href="/public/css_deps/font-awesome.min.css">
+  <style>
+    .fa-star {
+      color: gray;
+      font-size: 3rem;
+    }
+    .fa-star.checked {
+      color: gold;
+    }
+    .book-card img {
+      width: 60%;
+      margin: 0 auto;
+      display: block;
+    }
+    .book-card p {
+      margin: 10px 0;
+    }
+    .delete-btn, .edit-btn {
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 10px;
+    }
+    .delete-btn {
+      background-color: red;
+    }
+    .edit-btn {
+      background-color: blue;
+    }
+    .header {
+      padding-top: 70px; /* Adjust this value if necessary to avoid overlap with navbar */
+    }
+    a {
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="w3-container w3-theme w3-padding header" id="myHeader">
+  <div class="w3-center">
+    <h4>Noteify</h4>
+    <h1 class="w3-xxxlarge w3-animate-bottom">by Zachary Kleiman</h1>
+    <div class="w3-padding-32">
+      <div class="w3-row">
+        <div class="w3-col s8 w3-center">
+          <h2>Your books</h2>
+        </div>
+        <div class="w3-col s4 w3-center">
+          <a href="/book_adder" class="w3-button w3-theme">Add a book</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="w3-row-padding w3-center w3-margin-top" id="books-container">
+  <% books.forEach(book => { %>
+    <div class="w3-third book-item" data-category="<%= book.category %>">
+      <a href="/<%= book.serial_book_id %>">
+        <div class="w3-card w3-container book-card" style="min-height:460px">
+          <h3><%= book.title %></h3>
+          <img src="<%= book.path_in_public_to_cover %>" alt="Book Image">
+          <p>Author: <%= book.author %></p>
+          <p>Rating:
+            <div class="stars">
+              <% for (let i = 1; i <= 10; i++) { %>
+                <span class="fa fa-star <%= i <= book.rating ? 'checked' : '' %>"></span>
+              <% } %>
+            </div>
+          </p>
+          <p>ISBN: <%= book.isbn %></p>
+          <p>Description: <%= book.description %></p>
+          <p>Category: <%= book.category %></p>
+        </div>
+      </a>
+      <a href="/edit-book/<%= book.serial_book_id %>">
+        <button class="edit-btn">Edit</button>
+      </a>
+      <form class="delete-form" data-id="<%= book.serial_book_id %>">
+        <button type="submit" class="delete-btn">Delete</button>
+      </form>
+    </div>
+  <% }); %>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const deleteForms = document.querySelectorAll('.delete-form');
+
+  deleteForms.forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const bookId = form.getAttribute('data-id');
+      console.log(`Deleting book with id: ${bookId}`);
+      fetch(`/delete-book/${bookId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      })
+      .then(response => {
+        if (response.ok) {
+          window.location.reload();
+        } else {
+          //alert("error")
+          window.location.reload();
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to delete book');
+      });
+    });
+  });
+});
+</script>
+
+</body>
+</html>
